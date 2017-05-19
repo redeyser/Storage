@@ -71,17 +71,35 @@ class GroundSlice(SimStorage):
                 rec = { 'AX'    : randint(0,255),
                         'BX'    : randint(0,255),
                         'CX'    : randint(0,255),
-                        'DX'    : randint(0,255),
+                        'DX'    : randint(0,10),
                         'WIND'  : randint(0,255),
                         'WARM'  : randint(0,255),
-                        'WATER' : randint(0,255),
-                        'HEIGHT': randint(0,255),
+                        'WATER' : randint(0,200),
+                        'HEIGHT': 0,
                 }
                 #print "addRecord",j,rec
+                #rec['DX']=(rec['AX']+rec['BX']+rec['CX'])/3
+                self.__calcWater(rec)
                 self.add(rec)
 
     def __render(self):
         self.__empty()
+
+    def __calcWater(self, values):
+        Water = values['WATER']
+        DX = values['DX']
+        """ Общий объем """
+        Pa = values['AX']+values['BX']+values['CX']+values['DX']
+        """ Объем суши """
+        Pg = values['AX']+values['BX']+values['CX']
+        """ Свободный объем впитывания """
+        Pfree = Pg/3-DX
+        """ Перераспределение воды """
+        DeltaWater = min(Water,Pfree)
+        DX += DeltaWater
+        Water -= DeltaWater
+        values['DX'] = min(255,DX)
+        values['WATER'] = min(255,Water)
 
     def readxy(self,x,y):
         return self.readRecord(y*MAX_WIDTH+x)
@@ -92,11 +110,14 @@ class GroundSlice(SimStorage):
         for x in xrange(MAX_WIDTH):
             for y in xrange(MAX_HEIGHT):
                 self.readxy(x,y)
-                if self.hd_rec.values['HEIGHT'] >= self.hd_rec.values['WATER']:
-                    rgb = (self.hd_rec.values['WARM']/2,self.hd_rec.values['HEIGHT']/2,0)
-                else:
-                    rgb = (0,0,255-self.hd_rec.values['WATER'])
 
+                Height = self.hd_rec.values['AX']+self.hd_rec.values['BX']+self.hd_rec.values['CX']
+                Water = self.hd_rec.values['WATER']
+                Wdeep = 255-Water
+                if Water == 0:
+                    rgb = (Height/3/2,Height/3/2,0)
+                else:
+                    rgb = (0,0,Wdeep)
                 img.putpixel((x,y),rgb)
         img.save("groundSlice.png")
 
