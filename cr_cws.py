@@ -14,16 +14,15 @@ print stGS
 #        for n in range(10):
 #            stGS.block.calc()
 #        stGS.writeblock()
-#stGS.image()
-stGS.readblock(90,90,40,40)
-stGS.image_block("",20,20)
+stGS.image()
+stGS.readblock(0,100,50,50)
+stGS.image_block("",15,15)
 #stGS.block.addWater(100)
-for i in xrange(100):
-    stGS.block.calc()
-stGS.image_block("res",20,20)
-stGS.writeblock()
-#stGS.readblock(120,120,30,30)
-#stGS.image_block("after",10,10)
+#for i in xrange(100):
+#    stGS.block.calc()
+#stGS.image_block("res",15,15)
+#stGS.writeblock()
+#stGS.image_block("after",15,15)
 
 #for i in xrange(800000):
 #    stGS.readRecord(i)

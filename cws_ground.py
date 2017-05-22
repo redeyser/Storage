@@ -36,7 +36,7 @@ MAX_WIDTH = 1000
 MAX_HEIGHT =800
 S_RECCOUNT = MAX_WIDTH*MAX_HEIGHT
 
-SPEED_ITER=8
+SPEED_ITER=1
 SPEED_DX=2
 SPEED_GD=4
 class GroundBlock:
@@ -81,6 +81,13 @@ class GroundBlock:
         d1 = self.data[idx]
         d2 = self.data[idx2]
 
+        #if idx==810:
+        #    print self.xy(idx)
+        #    print d1
+        #    print d2
+        #    print '-'*20
+                
+
         """ Распределение воды по высоте """
         if d1['HEIGHT'] > d2['HEIGHT'] and d1['WATER'] > 0:
             deltaHeight = (d1['HEIGHT'] - d2['HEIGHT'])/2
@@ -100,9 +107,8 @@ class GroundBlock:
         if d1['WATER'] >0 and d1['Pg'] < d2['Pg']:
             deltaGround = d2['Pg'] - (d1['Pg'] + d2['Pg'])/2
             delta = max(deltaGround,1)
-            speedGround = max(255*3/delta,1)
-            v = deltaGround/SPEED_ITER
-            #/speedGround
+            speedGround = max(255/delta,1)
+            v = deltaGround/SPEED_ITER/speedGround
             for xx in ('CX','BX','AX'):
                 d = min(d2[xx], v)
                 d = min(d,255-d1[xx])
