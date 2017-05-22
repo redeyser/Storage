@@ -9,9 +9,15 @@ stGS.open()
 stGS.setDefault()
 print stGS
 #stGS.image()
-stGS.readblock(0,0,20,20)
-stGS.image_block(30,30)
-stGS.block.calc()
+stGS.readblock(0,0,80,80)
+stGS.image_block("",10,10)
+for i in xrange(100):
+    stGS.block.calc()
+stGS.image_block("res",10,10)
+stGS.writeblock()
+stGS.readblock(0,0,80,80)
+stGS.image_block("after",10,10)
+
 #for i in xrange(800000):
 #    stGS.readRecord(i)
 #    if stGS.hd_rec.values['HEIGHT']==0 and stGS.hd_rec.values['WATER']==255:

@@ -610,6 +610,10 @@ class Storage:
             return False
     
     def __write_fields__(self,nRec=None,values={}):
+        """ Записываем блок полей  
+            Необходимо по каждому полю рассчитать бинарное значение и указатель для seek
+            Затем устанавливать указатель и делать запись
+        """
         pass
 
     def __read_fields__(self,nRec=None):
@@ -729,6 +733,9 @@ class SimStorage(Storage):
     def add(self,values):
         return self.__append__(values,find=False)
 
+    def upd(self,values):
+        return self.__write_fields__(values,find=False)
+
     def delRecord(self, nRec):
         return self.__delete__(nRec)
 
@@ -737,5 +744,8 @@ class SimStorage(Storage):
 
     def readRecord(self,nRec):
         return self.__read_record__(nRec)
+
+    def writeRecord(self,nRec,values):
+        return self.__write_record__(nRec,values)
 
 
