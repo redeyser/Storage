@@ -32,8 +32,8 @@ S_RECORD = [
     ]
 
 S_RECSIZE = 8
-MAX_WIDTH = 1000
-MAX_HEIGHT =800
+MAX_WIDTH = 200
+MAX_HEIGHT = 200
 S_RECCOUNT = MAX_WIDTH*MAX_HEIGHT
 
 SPEED_ITER=1
@@ -145,7 +145,18 @@ class GroundBlock:
         for idx in range(len(self.data)):
             d1 = self.data[idx]
             if d1['WATER']>0:
-                d1['WATER']=+val
+                d1['WATER']+=val
+            d1['WATER'] = min(255,d1['WATER'])
+
+    def decWater(self,val):
+        for idx in range(len(self.data)):
+            d1 = self.data[idx]
+            delta = min(val,d1['WATER'])
+            d1['WATER'] -= delta
+            delta = val - delta
+            if delta>0:
+                delta = min(delta,d1['DX'])
+                d1['DX'] -= delta
 
 class GroundSlice(SimStorage):
     def Create(self):
@@ -164,8 +175,8 @@ class GroundSlice(SimStorage):
         values = {
          'iter'     :0,
          'tm_unix'  :int(time()),
-         'max_height'   : 80,
-         'max_width'    : 100,
+         'max_height'   : 200,
+         'max_width'    : 200,
          'tm_year'      : 1,
          'tm_month'     : 1,
          'tm_day'       : 1,
@@ -181,7 +192,7 @@ class GroundSlice(SimStorage):
                 rec = { 'AX'    : randint(0,255),
                         'BX'    : randint(0,255),
                         'CX'    : randint(0,255),
-                        'DX'    : 20,
+                        'DX'    : 30,
                         'WIND'  : randint(0,255),
                         'WARM'  : randint(0,255),
                         'WATER' : randint(0,130),
@@ -221,29 +232,31 @@ class GroundSlice(SimStorage):
 
                 Water = self.hd_rec.values['WATER']
                 Height = self.hd_rec.values['AX']+self.hd_rec.values['BX']+self.hd_rec.values['CX']+Water
-                Height = max(Height/4,30)
+                #Height = max(Height,30)
+
                 d=self.hd_rec.values
-                KF=0.5
-                cg = d['CX']*KF*0.5
-                cr = d['CX']*KF*0.5
-                cb = 0
+                KF=0.8
+                cg = d['CX']*KF*0.30
+                cr = d['CX']*KF*0.30
+                cb = d['CX']*KF*0.20
 
-                cg +=d['BX']*KF*0.5
-                cr +=d['BX']*KF*0.5
+                cg +=d['BX']*KF*0.30
+                cr +=d['BX']*KF*0.30
+                cb +=d['BX']*KF*0.20
 
-                cr += d['AX']*KF*0.33
-                cg += d['AX']*KF*0.33
-                cb += d['AX']*KF*0.33
+                cr +=d['AX']*KF*0.30
+                cg +=d['AX']*KF*0.30
+                cb +=d['AX']*KF*0.20
 
-                cb=int(cb)
-                cr=int(cr)
-                cg=int(cg)
+                cb=min(255,int(cb))
+                cr=min(255,int(cr))
+                cg=min(255,int(cg))
 
 
                 if Water == 0:
                     rgb = (cr,cg,cb)
                 else:
-                    rgb = (0,0,Height)
+                    rgb = (0,0,(255-Water)/2)
                 img.putpixel((x,y),rgb)
         img.save("groundSlice.png")
 
@@ -256,26 +269,27 @@ class GroundSlice(SimStorage):
                 d = self.block.readxy(x,y)
 
                 Height = d['AX']+d['BX']+d['CX']+d['WATER']
-                Height = max(Height/4,30)
-                KF=0.5
-                cg = d['CX']*KF*0.5
-                cr = d['CX']*KF*0.5
-                cb = 0
+                Height = max(Height,30)
+                KF=0.8
+                cg = d['CX']*KF*0.30
+                cr = d['CX']*KF*0.30
+                cb = d['CX']*KF*0.20
 
-                cg +=d['BX']*KF*0.5
-                cr +=d['BX']*KF*0.5
+                cg +=d['BX']*KF*0.30
+                cr +=d['BX']*KF*0.30
+                cb +=d['BX']*KF*0.20
 
-                cr += d['AX']*KF*0.33
-                cg += d['AX']*KF*0.33
-                cb += d['AX']*KF*0.33
+                cr +=d['AX']*KF*0.30
+                cg +=d['AX']*KF*0.30
+                cb +=d['AX']*KF*0.20
 
-                cb=int(cb)
-                cr=int(cr)
-                cg=int(cg)
+                cb=min(255,int(cb))
+                cr=min(255,int(cr))
+                cg=min(255,int(cg))
                 
                 if d['WATER'] == 0:
                     rgb = (cr,cg,cb)
                 else:
-                    rgb = (0,0,Height)
+                    rgb = (0,0,(255-Water)/2)
                 draw.rectangle([(x*w,y*h),(x*w+w,y*h+h)],fill=rgb)
         img.save("groundBlock_%s.png" % name)

@@ -8,16 +8,17 @@ stGS.Create()
 stGS.open()
 stGS.setDefault()
 print stGS
-#for x in range(20):
-#    for y in range(16):
-#        stGS.readblock(max(x*50-2,0),max(y*50-2,0),52,52)
-#        for n in range(10):
-#            stGS.block.calc()
-#        stGS.writeblock()
+for x in range(9):
+    for y in range(9):
+        stGS.readblock(x*20,y*20,40,40)
+        #stGS.block.decWater(5)
+        #stGS.block.addWater(50)
+        for n in range(20):
+            stGS.block.calc()
+        stGS.writeblock()
 stGS.image()
-stGS.readblock(0,100,50,50)
-stGS.image_block("",15,15)
-#stGS.block.addWater(100)
+#stGS.readblock(0,100,50,50)
+#stGS.image_block("",15,15)
 #for i in xrange(100):
 #    stGS.block.calc()
 #stGS.image_block("res",15,15)
