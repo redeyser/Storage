@@ -6,7 +6,6 @@ from os import path,stat
 from random import randint
 from PIL import Image, ImageDraw
 
-
 S_VARS = [
     ['iter','L'],
     ['tm_unix','L'],
@@ -224,72 +223,64 @@ class GroundSlice(SimStorage):
     def writexy(self,x,y,values):
         return self.writeRecord(y*MAX_WIDTH+x,values)
 
-    def image(self):
+
+    def _image_cell_rgb(self,d,channels,kf=0.8):
+        def addcolor(d,el):
+            r = d[el]*KF*0.30
+            g = d[el]*KF*0.30
+            b = d[el]*KF*0.20
+            return (r,g,b)
+        KF=0.8
+        cr = cg = cb = 0
+        for el in channels:
+            (r,g,b) = addcolor(d,el)
+            cr += r
+            cg += g
+            cb += b
+
+        cb=min(255,int(cb))
+        cr=min(255,int(cr))
+        cg=min(255,int(cg))
+        return (cr,cg,cb)
+
+    def image(self,name="groundSlice", channels = ['AX', 'BX', 'CX'], with_water=True, redNull=False):
         img = Image.new('RGB', (MAX_WIDTH, MAX_HEIGHT), (0,0,0))
         for x in xrange(MAX_WIDTH):
             for y in xrange(MAX_HEIGHT):
                 self.readxy(x,y)
-
                 Water = self.hd_rec.values['WATER']
-                Height = self.hd_rec.values['AX']+self.hd_rec.values['BX']+self.hd_rec.values['CX']+Water
-                #Height = max(Height,30)
-
                 d=self.hd_rec.values
-                KF=0.8
-                cg = d['CX']*KF*0.30
-                cr = d['CX']*KF*0.30
-                cb = d['CX']*KF*0.20
-
-                cg +=d['BX']*KF*0.30
-                cr +=d['BX']*KF*0.30
-                cb +=d['BX']*KF*0.20
-
-                cr +=d['AX']*KF*0.30
-                cg +=d['AX']*KF*0.30
-                cb +=d['AX']*KF*0.20
-
-                cb=min(255,int(cb))
-                cr=min(255,int(cr))
-                cg=min(255,int(cg))
-
-
-                if Water == 0:
-                    rgb = (cr,cg,cb)
+                if len(channels) == 1:
+                    kf = 3
                 else:
+                    kf = 0.8
+                (cr,cg,cb) = self._image_cell_rgb(d,channels)
+                if redNull and cr+cg+cb == 0:
+                    cr=128
+                if Water != 0 and with_water:
                     rgb = (0,0,(255-Water)/2)
+                else:
+                    rgb = (cr,cg,cb)
                 img.putpixel((x,y),rgb)
-        img.save("groundSlice.png")
+        img.save(name+".png")
 
-    def image_block(self,name,w=1,h=1):
-        #RGBA
+    def image_block(self,name="groundBlock", channels = ['AX', 'BX', 'CX'], with_water=True, redNull=False):
         img = Image.new('RGB', (self.block.rx*w, self.block.ry*h), (0,0,0))
         draw = ImageDraw.Draw(img)
         for x in xrange(self.block.rx):
             for y in xrange(self.block.ry):
                 d = self.block.readxy(x,y)
-
-                Height = d['AX']+d['BX']+d['CX']+d['WATER']
-                Height = max(Height,30)
-                KF=0.8
-                cg = d['CX']*KF*0.30
-                cr = d['CX']*KF*0.30
-                cb = d['CX']*KF*0.20
-
-                cg +=d['BX']*KF*0.30
-                cr +=d['BX']*KF*0.30
-                cb +=d['BX']*KF*0.20
-
-                cr +=d['AX']*KF*0.30
-                cg +=d['AX']*KF*0.30
-                cb +=d['AX']*KF*0.20
-
-                cb=min(255,int(cb))
-                cr=min(255,int(cr))
-                cg=min(255,int(cg))
-                
-                if d['WATER'] == 0:
-                    rgb = (cr,cg,cb)
+                Water = d['WATER']
+                if len(channels) == 1:
+                    kf = 3
                 else:
+                    kf = 0.8
+                (cr,cg,cb) = self._image_cell_rgb(d,channels)
+                if redNull and cr+cg+cb == 0:
+                    cr=128
+                if Water != 0 and with_water:
                     rgb = (0,0,(255-Water)/2)
+                else:
+                    rgb = (cr,cg,cb)
                 draw.rectangle([(x*w,y*h),(x*w+w,y*h+h)],fill=rgb)
-        img.save("groundBlock_%s.png" % name)
+        img.save(name+".png")

@@ -13,10 +13,23 @@ for x in range(9):
         stGS.readblock(x*20,y*20,40,40)
         #stGS.block.decWater(5)
         #stGS.block.addWater(50)
-        for n in range(20):
+        for n in range(4):
             stGS.block.calc()
         stGS.writeblock()
-stGS.image()
+for x in range(4):
+    for y in range(4):
+        stGS.readblock(x*50,y*50,50,50)
+        #stGS.block.decWater(5)
+        #stGS.block.addWater(50)
+        for n in range(10):
+            stGS.block.calc()
+        stGS.writeblock()
+stGS.image(name='gr_al',with_water=True)
+stGS.image(name='gr_hi',with_water=False)
+stGS.image(name='gr_dx',channels = ['DX'], with_water=False,redNull=True)
+stGS.image(name='gr_ax',channels = ['AX'], with_water=False)
+stGS.image(name='gr_bx',channels = ['BX'], with_water=False)
+stGS.image(name='gr_cx',channels = ['CX'], with_water=False)
 #stGS.readblock(0,100,50,50)
 #stGS.image_block("",15,15)
 #for i in xrange(100):
